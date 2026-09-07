@@ -3,353 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spider-Man: NYC Web Swinger</title>
+    <title>Spider-Man Race!</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-user-select: none;
         }
         body {
+            background-color: #0d0f12;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            background-color: #050b14;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        #gameCanvas {
-            display: block;
-            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
         }
-        #ui {
+        #gameCanvas {
+            background: #111;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: block;
+        }
+        .ui-panel {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #ffffff;
+            top: 15px;
+            left: 15px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             pointer-events: none;
-            z-index: 10;
         }
-        .card {
-            background: rgba(12, 18, 34, 0.75);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            padding: 16px 22px;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        h1 {
-            font-size: 20px;
-            font-weight: 800;
+        .ui-panel h1 {
+            font-size: 22px;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: #ff3344;
-            margin-bottom: 8px;
-            text-shadow: 0 0 12px rgba(255, 51, 68, 0.6);
+            text-shadow: 0 0 10px rgba(255, 51, 68, 0.5);
+            margin-bottom: 5px;
         }
-        .controls-info {
+        .ui-panel p {
             font-size: 13px;
-            color: #d0d7de;
-            line-height: 1.6;
+            color: #cbd5e1;
+            margin: 3px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .key {
-            background: rgba(255, 255, 255, 0.22);
-            padding: 2px 7px;
-            border-radius: 5px;
-            font-weight: bold;
+            background: #334155;
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            border-bottom: 2px solid #1e293b;
         }
         #stats {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            z-index: 10;
-            text-align: right;
-            min-width: 180px;
+            top: 15px;
+            right: 15px;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            font-family: monospace;
+            font-size: 14px;
+            min-width: 220px;
+            pointer-events: none;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
         }
         .stat-val {
-            font-size: 20px;
+            color: #38bdf8;
             font-weight: bold;
-            color: #38ef7d;
         }
-        .pos-first {
-            color: #ffd700 !important;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-        }
-        .pos-second {
-            color: #ff3344 !important;
-        }
-        .time-badge {
-            display: inline-block;
-            margin-top: 6px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: #1e293b;
-            color: #94a3b8;
-        }
-        #soundBanner {
+        #record-banner {
+            display: none;
             position: absolute;
-            bottom: 20px;
+            top: 150px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 13px;
-            background: rgba(0,0,0,0.65);
-            padding: 8px 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            padding: 10px 25px;
             border-radius: 20px;
-            pointer-events: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        #countdownOverlay {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 100px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 30px rgba(255, 51, 68, 0.8), 0 0 10px #000;
-            pointer-events: none;
-            z-index: 15;
-            display: none;
-            text-transform: uppercase;
-        }
-        #startModal, #raceModal, #skinModal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+            animation: pulse 1.5s infinite alternate;
             text-align: center;
-            z-index: 20;
-            min-width: 340px;
-            max-width: 90vw;
+            pointer-events: none;
+            z-index: 5;
         }
-        #skinModal {
-            width: 520px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(0.95); }
+            100% { transform: translateX(-50%) scale(1.05); }
         }
-        #startModal h2, #raceModal h2, #skinModal h2 {
-            font-size: 26px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-        #startModal p, #raceModal p, #skinModal p {
-            font-size: 14px;
-            margin-bottom: 16px;
-            color: #e2e8f0;
-        }
-        .difficulty-btn {
-            display: block;
-            width: 100%;
-            margin: 8px 0;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.15s, filter 0.2s;
-            color: white;
-        }
-        .btn-super-easy { background: #38ef7d; color: #05140b; }
-        .btn-easy { background: #38bdf8; color: #041018; }
-        .btn-medium { background: #f59e0b; }
-        .btn-hard { background: #ff3344; }
-        .difficulty-btn:hover {
-            transform: scale(1.04);
-            filter: brightness(1.15);
-        }
-        .map-option-btn, .skin-toggle-btn {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            margin: 8px 0;
-            padding: 12px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s ease;
-            color: white;
-            background: rgba(255, 255, 255, 0.05);
-            text-align: left;
-        }
-        .map-option-btn:hover, .skin-toggle-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.15);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-        }
-        .skin-toggle-btn {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(56, 189, 248, 0.2));
-            border-color: #a855f7;
-            margin-bottom: 16px;
-        }
-        .map-icon {
-            font-size: 24px;
-            margin-right: 12px;
-        }
-        .map-info {
-            flex-grow: 1;
-        }
-        .map-title {
-            font-size: 15px;
-            font-weight: 800;
-            color: #ffffff;
-        }
-        .map-desc {
-            font-size: 11px;
-            color: #94a3b8;
-            text-transform: none;
-            margin-top: 2px;
-        }
-        .back-btn {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #cbd5e1;
-            padding: 6px 14px;
+        #audio-prompt {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 16px;
+            border-radius: 20px;
             font-size: 12px;
-            border-radius: 12px;
+            color: #94a3b8;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #speedometer {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            font-size: 48px;
+            font-weight: 900;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+        #selection-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 15, 25, 0.92);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .selection-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .selection-card h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+        .selection-card p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .select-btn {
+            background: #334155;
+            border: 2px solid transparent;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .select-btn:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+        .select-btn.selected {
+            border-color: #38bdf8;
+            background: #1e293b;
+        }
+        .btn-easy { border-left: 4px solid #10b981; }
+        .btn-medium { border-left: 4px solid #f59e0b; }
+        .btn-hard { border-left: 4px solid #ef4444; }
+        .start-btn {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s ease;
+        }
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+        }
+        .step-hidden {
+            display: none !important;
+        }
+        
+        #wardrobe-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid #38bdf8;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 5;
             transition: all 0.2s;
         }
-        .back-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
+        #wardrobe-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
         }
-        #restartBtn {
-            background: #ff3344;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(255, 51, 68, 0.4);
-            transition: transform 0.1s, background 0.2s;
+        #wardrobe-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 15, 25, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            z-index: 20;
         }
-        #restartBtn:hover {
-            background: #ff1126;
-            transform: scale(1.05);
-        }
-        /* Skins Grid Container */
-        #skinGrid {
+        #wardrobe-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 900px;
+            height: 70vh;
             overflow-y: auto;
-            padding: 8px;
-            max-height: 48vh;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            margin-top: 15px;
         }
-        .skin-card {
-            background: rgba(255,255,255,0.05);
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 12px;
-            padding: 8px 4px;
+        .suit-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #334155;
+            border-radius: 8px;
+            padding: 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.15s ease;
-            position: relative;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .skin-card:hover:not(.locked) {
-            transform: scale(1.05);
+        .suit-card:hover {
             border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.2);
         }
-        .skin-card.selected {
-            border-color: #38ef7d;
-            box-shadow: 0 0 12px rgba(56, 239, 125, 0.6);
-            background: rgba(56, 239, 125, 0.15);
+        .suit-card.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
         }
-        .skin-card.locked {
+        .suit-card.locked {
             opacity: 0.5;
             cursor: not-allowed;
-            border-color: rgba(255,255,255,0.05);
+            border-color: #1e293b;
         }
-        .skin-card canvas {
-            display: block;
-            margin: 0 auto 4px auto;
-            width: 44px;
-            height: 44px;
+        .suit-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            border: 2px solid rgba(255,255,255,0.2);
         }
-        .skin-name {
-            font-size: 10px;
-            font-weight: 700;
-            color: #ffffff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .skin-status {
-            font-size: 9px;
+        .suit-name {
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 2px;
         }
-        .skin-status.unlocked { color: #38ef7d; }
-        .skin-status.lock-text { color: #ff3344; }
-
-        /* Achievement Record Banner Popup */
-        #achievementToast {
+        .suit-status {
+            font-size: 10px;
+            margin-top: 4px;
+            color: #94a3b8;
+        }
+        
+        #win-overlay {
             position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-120px);
-            background: linear-gradient(135deg, rgba(20, 20, 50, 0.95), rgba(88, 28, 135, 0.95));
-            border: 2px solid #ffd700;
-            padding: 14px 28px;
-            border-radius: 20px;
-            color: #ffffff;
+            inset: 0;
+            background: rgba(10, 15, 25, 0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 15;
             text-align: center;
-            z-index: 30;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), 0 10px 30px rgba(0,0,0,0.5);
-            pointer-events: none;
-            opacity: 0;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
         }
-        #achievementToast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        .achieve-title {
-            font-size: 17px;
-            font-weight: 900;
-            color: #ffd700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-        }
-        .achieve-desc {
-            font-size: 13px;
-            color: #e0e7ff;
-            margin-top: 3px;
+        #win-card {
+            background: rgba(30, 41, 59, 0.95);
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
         }
     </style>
 </head>
 <body>
 
-    <div id="ui" class="card">
+    <div class="ui-panel">
         <h1>Spider-Man Race!</h1>
-        <div class="controls-info">
+        <div>
             <p><span class="key">W</span> Hold to Swing & Reel In (Hold to go HIGHER!)</p>
             <p><span class="key">▲</span> Extra Web Pull / Air Jump</p>
             <p><span class="key">▼</span> Fast Dive Down</p>
@@ -358,1866 +328,99 @@
         </div>
     </div>
 
-    <div id="stats" class="card">
-        <div>SUIT: <span id="skinDisplay" class="stat-val" style="color:#f43f5e;">Classic Red</span></div>
-        <div>MAP: <span id="mapDisplay" class="stat-val" style="color:#a855f7;">Midtown</span></div>
-        <div>MODE: <span id="modeDisplay" class="stat-val" style="color:#38bdf8;">Easy</span></div>
-        <div style="margin-top: 4px;">PLACE: <span id="posDisplay" class="stat-val pos-first">1st</span></div>
-        <div style="margin-top: 4px;">FINISH IN: <span id="distDisplay" class="stat-val">10000</span> FT</div>
-        <div style="margin-top: 4px;">SPEED: <span id="speedDisplay" class="stat-val">0</span> MPH</div>
-        <div style="margin-top: 4px;">TIME: <span id="timeDisplay" class="stat-val" style="color:#facc15;">0.0s</span></div>
-        <div style="margin-top: 4px;">BEST: <span id="bestDisplay" class="stat-val" style="color:#a855f7;">--</span></div>
-        <div>TIME OF DAY: <span id="timeCycleDisplay" class="time-badge">Daytime</span></div>
+    <div id="stats">
+        <div class="stat-row">SUIT: <span class="stat-val" id="suit-display">Classic Red</span></div>
+        <div class="stat-row">MAP: <span class="stat-val" id="map-display">Midtown</span></div>
+        <div class="stat-row">MODE: <span class="stat-val" id="diff-display">Easy</span></div>
+        <div class="stat-row">PLACE: <span class="stat-val" id="place-display">1st</span></div>
+        <div class="stat-row">FINISH IN: <span class="stat-val" id="dist-display">10000</span> FT</div>
+        <div class="stat-row">SPEED: <span class="stat-val" id="speed-display">0</span> MPH</div>
+        <div class="stat-row">TIME: <span class="stat-val" id="time-display">0.0s</span></div>
+        <div class="stat-row">BEST: <span class="stat-val" id="best-display">--</span></div>
+        <div class="stat-row">TIME OF DAY: <span class="stat-val" id="tod-display">Daytime</span></div>
     </div>
 
-    <div id="achievementToast">
-        <div class="achieve-title" id="achieveTitle">🏆 NEW RECORD UNLOCKED! 🏆</div>
-        <div class="achieve-desc" id="achieveDesc">Fastest time on Easy Mode!</div>
+    <div id="record-banner">
+        <div>🏆 NEW RECORD UNLOCKED! 🏆</div>
+        <div id="record-text" style="font-size: 12px; margin-top: 2px; opacity: 0.9;">Fastest time on Easy Mode!</div>
     </div>
 
-    <div id="soundBanner">🔊 Click anywhere or pick a mode to enable Game Audio & Music!</div>
+    <div id="audio-prompt">🔊 Click anywhere or pick a mode to enable Game Audio & Music!</div>
 
-    <div id="countdownOverlay">10</div>
+    <div id="speedometer">10</div>
 
-    <!-- Start Mode & Map Selection Modal -->
-    <div id="startModal" class="card">
-        <div id="startStep1">
+    <!-- Map & Mode Selection Overlay -->
+    <div id="selection-overlay">
+        <div class="selection-card" id="step-1">
             <h2>Step 1: Choose Map Area</h2>
             <p>Select your swinging destination across New York:</p>
 
-            <button class="skin-toggle-btn" onclick="openSkinModal()">
-                <span class="map-icon">🕷️</span>
-                <div class="map-info">
-                    <div class="map-title">Choose Suit / Skin</div>
-                    <div class="map-desc" id="skinCountDesc">100 Suits Available (1 Unlocked)</div>
-                </div>
-                <span>➔</span>
-            </button>
-            
-            <button class="map-option-btn" onclick="selectMap('midtown')">
-                <span class="map-icon">🏙️</span>
-                <div class="map-info">
-                    <div class="map-title">Midtown Manhattan</div>
-                    <div class="map-desc">Dense skyscraper alleys with mid-air drones.</div>
-                </div>
-                <span>➔</span>
-            </button>
+            <div class="btn-grid">
+                <button class="select-btn map-btn selected" onclick="selectMap('midtown')">
+                    <span>🏢 Midtown Manhattan</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Tall Skyscrapers</span>
+                </button>
+                <button class="select-btn map-btn" onclick="selectMap('centralpark')">
+                    <span>🌳 Central Park</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Trees & Wide Gaps</span>
+                </button>
+                <button class="select-btn map-btn" onclick="selectMap('queens')">
+                    <span>🏠 Queens Suburbs</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Low Houses & Powerlines</span>
+                </button>
+            </div>
 
-            <button class="map-option-btn" onclick="selectMap('park')">
-                <span class="map-icon">🌳</span>
-                <div class="map-info">
-                    <div class="map-title">Central Park & Playground</div>
-                    <div class="map-desc">Green grass, trees, playgrounds with kids & flying pigeons.</div>
-                </div>
-                <span>➔</span>
-            </button>
-
-            <button class="map-option-btn" onclick="selectMap('neon')">
-                <span class="map-icon">🌃</span>
-                <div class="map-info">
-                    <div class="map-title">Cyber-NYC 2099</div>
-                    <div class="map-desc">Futuristic synthwave skyline with neon hover discs.</div>
-                </div>
-                <span>➔</span>
-            </button>
+            <button class="start-btn" onclick="goToStep2()">Next: Select Difficulty ➔</button>
         </div>
 
-        <div id="startStep2" style="display: none;">
-            <button class="back-btn" onclick="goBackToStep1()">⬅️ Change Map Area</button>
+        <div class="selection-card step-hidden" id="step-2">
             <h2>Step 2: Choose Difficulty</h2>
-            <p>Selected: <strong id="selectedMapLabel" style="color: #38bdf8;">Midtown Manhattan</strong></p>
-            
-            <button class="difficulty-btn btn-super-easy" onclick="selectDifficulty('super-easy')">Super Easy (Very Very Very Slow)</button>
-            <button class="difficulty-btn btn-easy" onclick="selectDifficulty('easy')">Easy (Slow)</button>
-            <button class="difficulty-btn btn-medium" onclick="selectDifficulty('medium')">Medium (Kinda Fast)</button>
-            <button class="difficulty-btn btn-hard" onclick="selectDifficulty('hard')">Hard (Fast)</button>
+            <p>Selected: <strong id="selected-map-name" style="color: #38bdf8;">Midtown Manhattan</strong></p>
+
+            <div class="btn-grid">
+                <button class="select-btn btn-easy diff-btn" onclick="selectDiff('easy')">
+                    <span>🟢 Easy Mode</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Miles is slower (10,000 FT)</span>
+                </button>
+                <button class="select-btn btn-medium diff-btn selected" onclick="selectDiff('medium')">
+                    <span>🟡 Medium Mode</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Balanced Race (10,000 FT)</span>
+                </button>
+                <button class="select-btn btn-hard diff-btn" onclick="selectDiff('hard')">
+                    <span>🔴 Hard Mode</span>
+                    <span style="font-size: 11px; opacity: 0.7;">Fast Miles & Obstacles!</span>
+                </button>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="select-btn" onclick="goToStep1()" style="flex: 1; text-align: center; justify-content: center;">⬅ Back</button>
+                <button class="start-btn" onclick="confirmStartRace()" style="flex: 2;">START RACE! 🏁</button>
+            </div>
         </div>
     </div>
 
-    <!-- 100 Skins Selector Modal -->
-    <div id="skinModal" class="card" style="display: none;">
-        <h2>Suit Wardrobe (100 Suits)</h2>
-        <p>Win races against Miles to unlock new Spider-Suits!</p>
+    <!-- Suit Wardrobe -->
+    <button id="wardrobe-btn" onclick="toggleWardrobe()">👕 Wardrobe</button>
+    <div id="wardrobe-overlay">
+        <h2 style="font-size: 28px; margin-bottom: 5px;">Suit Wardrobe (100 Suits)</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px;">Win races against Miles to unlock new Spider-Suits!</p>
         
-        <div id="skinGrid"></div>
+        <div id="wardrobe-grid"></div>
 
-        <button class="back-btn" onclick="closeSkinModal()" style="margin-top: 14px; margin-bottom: 0;">⬅️ Back to Map Select</button>
+        <button class="start-btn" onclick="toggleWardrobe()" style="margin-top: 20px; max-width: 200px;">Close Wardrobe</button>
     </div>
 
-    <!-- Race Victory / Loss Modal -->
-    <div id="raceModal" class="card" style="display: none;">
-        <h2 id="winnerTitle">YOU WIN!</h2>
-        <p id="winnerDesc">You beat Miles Morales to the finish line!</p>
-        <button id="restartBtn" onclick="openStartModal()">Play Again</button>
+    <!-- Win Overlay -->
+    <div id="win-overlay">
+        <div id="win-card">
+            <h2 id="win-title" style="font-size: 32px; color: #10b981; margin-bottom: 10px;">YOU WIN!</h2>
+            <p id="win-msg" style="margin-bottom: 20px; color: #cbd5e1;">You beat Miles Morales to the finish line!</p>
+            <button class="start-btn" onclick="restartToMenu()">Play Again 🔄</button>
+        </div>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        const speedDisplay = document.getElementById('speedDisplay');
-        const altDisplay = document.getElementById('altDisplay');
-        const distDisplay = document.getElementById('distDisplay');
-        const posDisplay = document.getElementById('posDisplay');
-        const modeDisplay = document.getElementById('modeDisplay');
-        const mapDisplay = document.getElementById('mapDisplay');
-        const skinDisplay = document.getElementById('skinDisplay');
-        const startStep1 = document.getElementById('startStep1');
-        const startStep2 = document.getElementById('startStep2');
-        const selectedMapLabel = document.getElementById('selectedMapLabel');
-        const timeCycleDisplay = document.getElementById('timeCycleDisplay');
-        const soundBanner = document.getElementById('soundBanner');
-        const countdownOverlay = document.getElementById('countdownOverlay');
-        const startModal = document.getElementById('startModal');
-        const raceModal = document.getElementById('raceModal');
-        const skinModal = document.getElementById('skinModal');
-        const skinGrid = document.getElementById('skinGrid');
-        const skinCountDesc = document.getElementById('skinCountDesc');
-        const winnerTitle = document.getElementById('winnerTitle');
-        const winnerDesc = document.getElementById('winnerDesc');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const bestDisplay = document.getElementById('bestDisplay');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        // --- 100 SPIDER-MAN SKINS GENERATOR & SYSTEM ---
-        const KNOWN_SUIT_NAMES = [
-            "Classic Red", "Miles Black", "Iron Spider", "Future Found.", "Stealth Suit", "Symbiote Dark", 
-            "Spider-2099", "Golden Armor", "Neon Cyber", "Anti-Ock", "Scarlet Spidey", "Electro-Proof",
-            "Negative Zone", "Velocity Suit", "Cosmic Spidey", "Spider-Punk", "Noir Stealth", "Armored Spidey",
-            "Manga Verse", "Big Time", "Kaine Parker", "Superior Suit", "Web-Man", "Prowler Blend"
-        ];
-
-        const SUITS_100 = [];
-        for (let i = 0; i < 100; i++) {
-            let name = KNOWN_SUIT_NAMES[i] || `Suit #${i + 1}`;
-            
-            // Procedural vibrant color palettes
-            const primaryHue = (i * 37) % 360;
-            const secondaryHue = (i * 37 + 160) % 360;
-            
-            const primary = i === 0 ? '#d61c1c' : (i === 1 ? '#111116' : (i === 2 ? '#d97706' : (i === 5 ? '#0f172a' : `hsl(${primaryHue}, 75%, 45%)`)));
-            const secondary = i === 0 ? '#1b4fb8' : (i === 1 ? '#e2231a' : (i === 2 ? '#ef4444' : (i === 5 ? '#334155' : `hsl(${secondaryHue}, 70%, 40%)`)));
-            const logoColor = (i % 2 === 0) ? '#000000' : '#ffffff';
-
-            SUITS_100.push({
-                id: i,
-                name: name,
-                primary: primary,
-                secondary: secondary,
-                logo: logoColor
-            });
-        }
-
-        let unlockedSkins = [0]; // Suit #0 unlocked at start
-        let equippedSkinId = 0;
-
-        try {
-            const savedUnlocks = JSON.parse(localStorage.getItem('spidey_unlocked_skins') || '[0]');
-            if (Array.isArray(savedUnlocks) && savedUnlocks.length > 0) {
-                unlockedSkins = savedUnlocks;
-            }
-            equippedSkinId = parseInt(localStorage.getItem('spidey_equipped_skin') || '0', 10);
-            if (isNaN(equippedSkinId) || equippedSkinId < 0 || equippedSkinId >= 100) equippedSkinId = 0;
-        } catch(e) {}
-
-        function saveSkinProgress() {
-            try {
-                localStorage.setItem('spidey_unlocked_skins', JSON.stringify(unlockedSkins));
-                localStorage.setItem('spidey_equipped_skin', equippedSkinId.toString());
-            } catch(e) {}
-        }
-
-        function unlockNextSkin() {
-            if (unlockedSkins.length < 100) {
-                for (let i = 0; i < 100; i++) {
-                    if (!unlockedSkins.includes(i)) {
-                        unlockedSkins.push(i);
-                        saveSkinProgress();
-                        return SUITS_100[i];
-                    }
-                }
-            }
-            return null;
-        }
-
-        function renderSkinGrid() {
-            if (!skinGrid) return;
-            skinGrid.innerHTML = '';
-
-            if (skinCountDesc) {
-                skinCountDesc.textContent = `100 Suits Available (${unlockedSkins.length} Unlocked)`;
-            }
-
-            SUITS_100.forEach(suit => {
-                const isUnlocked = unlockedSkins.includes(suit.id);
-                const isSelected = suit.id === equippedSkinId;
-
-                const card = document.createElement('div');
-                card.className = `skin-card ${isSelected ? 'selected' : ''} ${!isUnlocked ? 'locked' : ''}`;
-                
-                // Mini preview canvas
-                const miniCanvas = document.createElement('canvas');
-                miniCanvas.width = 44;
-                miniCanvas.height = 44;
-                const mctx = miniCanvas.getContext('2d');
-
-                // Render miniature spidey head preview
-                mctx.save();
-                mctx.translate(22, 22);
-                
-                // Mask Head
-                mctx.fillStyle = suit.primary;
-                mctx.beginPath();
-                mctx.arc(0, 0, 16, 0, Math.PI * 2);
-                mctx.fill();
-
-                if (isUnlocked) {
-                    // Mask Eyes
-                    mctx.fillStyle = '#000000';
-                    mctx.beginPath();
-                    mctx.ellipse(-6, -2, 5, 8, -Math.PI / 7, 0, Math.PI * 2);
-                    mctx.ellipse(6, -2, 5, 8, Math.PI / 7, 0, Math.PI * 2);
-                    mctx.fill();
-
-                    mctx.fillStyle = '#ffffff';
-                    mctx.beginPath();
-                    mctx.ellipse(-6, -2, 3.5, 6, -Math.PI / 7, 0, Math.PI * 2);
-                    mctx.ellipse(6, -2, 3.5, 6, Math.PI / 7, 0, Math.PI * 2);
-                    mctx.fill();
-                } else {
-                    // Lock icon on preview
-                    mctx.fillStyle = '#ffffff';
-                    mctx.font = 'bold 16px sans-serif';
-                    mctx.textAlign = 'center';
-                    mctx.fillText('🔒', 0, 5);
-                }
-                mctx.restore();
-
-                card.appendChild(miniCanvas);
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'skin-name';
-                nameDiv.textContent = suit.name;
-                card.appendChild(nameDiv);
-
-                const statusDiv = document.createElement('div');
-                statusDiv.className = `skin-status ${isUnlocked ? 'unlocked' : 'lock-text'}`;
-                statusDiv.textContent = isSelected ? 'EQUIPPED' : (isUnlocked ? 'UNLOCKED' : 'LOCKED');
-                card.appendChild(statusDiv);
-
-                if (isUnlocked) {
-                    card.onclick = () => {
-                        equippedSkinId = suit.id;
-                        saveSkinProgress();
-                        updateSkinDisplay();
-                        renderSkinGrid();
-                        playBeepSound(false);
-                    };
-                }
-
-                skinGrid.appendChild(card);
-            });
-        }
-
-        function updateSkinDisplay() {
-            const currentSuit = SUITS_100[equippedSkinId] || SUITS_100[0];
-            if (skinDisplay) {
-                skinDisplay.textContent = currentSuit.name;
-                skinDisplay.style.color = currentSuit.primary;
-            }
-        }
-
-        function openSkinModal() {
-            startModal.style.display = 'none';
-            skinModal.style.display = 'flex';
-            renderSkinGrid();
-            playBeepSound(false);
-        }
-
-        function closeSkinModal() {
-            skinModal.style.display = 'none';
-            startModal.style.display = 'block';
-            playBeepSound(false);
-        }
-
-        // Record Keeping Logic
-        let bestTimes = {};
-        try {
-            bestTimes = JSON.parse(localStorage.getItem('spidey_best_times') || '{}');
-        } catch(e) {
-            bestTimes = {};
-        }
-
-        function formatTime(seconds) {
-            if (!seconds || isNaN(seconds)) return '--';
-            return seconds.toFixed(1) + 's';
-        }
-
-        function updateBestTimeDisplay() {
-            if (bestDisplay) {
-                bestDisplay.textContent = formatTime(bestTimes[currentDifficulty]);
-            }
-        }
-
-        function showAchievementToast(title, desc) {
-            const toast = document.getElementById('achievementToast');
-            const titleEl = document.getElementById('achieveTitle');
-            const descEl = document.getElementById('achieveDesc');
-            if (toast && descEl && titleEl) {
-                titleEl.textContent = title;
-                descEl.textContent = desc;
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
-            }
-        }
-
-        // Web Audio Synthesizer Effects & Speech
-        let audioCtx = null;
-        let menuMusicTimer = null;
-        let isMenuMusicPlaying = false;
-
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            if (soundBanner) soundBanner.style.display = 'none';
-
-            if (startModal.style.display !== 'none' || skinModal.style.display !== 'none') {
-                startMenuMusic();
-            }
-        }
-
-        window.addEventListener('click', initAudio);
-        window.addEventListener('keydown', initAudio);
-
-        // Menu Music Synthesizer
-        function startMenuMusic() {
-            if (!audioCtx || isMenuMusicPlaying) return;
-            isMenuMusicPlaying = true;
-
-            const notes = [
-                261.63, 311.13, 392.00, 523.25,
-                261.63, 311.13, 392.00, 523.25,
-                293.66, 349.23, 440.00, 587.33,
-                220.00, 261.63, 329.63, 440.00
-            ];
-            let step = 0;
-
-            menuMusicTimer = setInterval(() => {
-                if (!isMenuMusicPlaying || !audioCtx) return;
-                try {
-                    const freq = notes[step % notes.length];
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.2);
-
-                    if (step % 4 === 0) {
-                        const bassOsc = audioCtx.createOscillator();
-                        const bassGain = audioCtx.createGain();
-                        bassOsc.type = 'sawtooth';
-                        bassOsc.frequency.setValueAtTime(freq / 2, audioCtx.currentTime);
-                        bassGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                        bassGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-
-                        const filter = audioCtx.createBiquadFilter();
-                        filter.type = 'lowpass';
-                        filter.frequency.setValueAtTime(400, audioCtx.currentTime);
-
-                        bassOsc.connect(filter);
-                        filter.connect(bassGain);
-                        bassGain.connect(audioCtx.destination);
-
-                        bassOsc.start();
-                        bassOsc.stop(audioCtx.currentTime + 0.38);
-                    }
-
-                    step++;
-                } catch(e) {}
-            }, 180);
-        }
-
-        function stopMenuMusic() {
-            isMenuMusicPlaying = false;
-            if (menuMusicTimer) {
-                clearInterval(menuMusicTimer);
-                menuMusicTimer = null;
-            }
-        }
-
-        function speakWeb() {
-            initAudio();
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance("Web!");
-                utterance.pitch = 1.4;
-                utterance.rate = 1.7;
-                utterance.volume = 1.0;
-                window.speechSynthesis.speak(utterance);
-            } else {
-                playWebSound();
-            }
-        }
-
-        function playWebSound() {
-            if (!audioCtx) return;
-            try {
-                const bufferSize = audioCtx.sampleRate * 0.12;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
-                const noise = audioCtx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.setValueAtTime(3200, audioCtx.currentTime);
-                filter.frequency.exponentialRampToValueAtTime(350, audioCtx.currentTime + 0.12);
-
-                const gain = audioCtx.createGain();
-                gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                noise.start();
-            } catch(e) {}
-        }
-
-        function playSwooshSound() {
-            if (!audioCtx) return;
-            try {
-                const bufferSize = audioCtx.sampleRate * 0.22;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
-                const noise = audioCtx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, audioCtx.currentTime);
-                filter.frequency.linearRampToValueAtTime(1100, audioCtx.currentTime + 0.1);
-                filter.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.22);
-
-                const gain = audioCtx.createGain();
-                gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0.35, audioCtx.currentTime + 0.08);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.22);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                noise.start();
-            } catch(e) {}
-        }
-
-        function playLandSound(impactSpeed) {
-            if (!audioCtx) return;
-            try {
-                const intensity = Math.min(1.0, Math.max(0.25, impactSpeed / 16));
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(28, audioCtx.currentTime + 0.16);
-
-                gain.gain.setValueAtTime(0.75 * intensity, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.16);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.16);
-            } catch(e) {}
-        }
-
-        function playHitObstacleSound() {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.2);
-
-                gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.2);
-            } catch(e) {}
-        }
-
-        function playBeepSound(isGo = false) {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(isGo ? 880 : 440, audioCtx.currentTime);
-
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (isGo ? 0.4 : 0.15));
-
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                osc.start();
-                osc.stop(audioCtx.currentTime + (isGo ? 0.4 : 0.15));
-            } catch(e) {}
-        }
-
-        function playAchievementSound() {
-            if (!audioCtx) return;
-            try {
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.09);
-
-                    gain.gain.setValueAtTime(0.35, audioCtx.currentTime + idx * 0.09);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.09 + 0.35);
-
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-
-                    osc.start(audioCtx.currentTime + idx * 0.09);
-                    osc.stop(audioCtx.currentTime + idx * 0.09 + 0.35);
-                });
-            } catch(e) {}
-        }
-
-        // Keyboard State
-        const keys = {};
-        window.addEventListener('keydown', e => {
-            keys[e.key.toLowerCase()] = true;
-            keys[e.key] = true;
-        });
-        window.addEventListener('keyup', e => {
-            keys[e.key.toLowerCase()] = false;
-            keys[e.key] = false;
-        });
-
-        // Constants & Physics Settings
-        const GRAVITY = 0.38;
-        const CYCLE_DURATION = 180000;
-        const FINISH_LINE_X = 12000;
-
-        // Difficulty Settings for Miles AI Speed
-        const DIFFICULTIES = {
-            'super-easy': { name: 'Super Easy', color: '#38ef7d', speedMult: 0.15, boostMult: 0.12 },
-            'easy':       { name: 'Easy',       color: '#38bdf8', speedMult: 0.42, boostMult: 0.36 },
-            'medium':     { name: 'Medium',     color: '#f59e0b', speedMult: 0.70, boostMult: 0.62 },
-            'hard':       { name: 'Hard',       color: '#ff3344', speedMult: 0.98, boostMult: 0.90 }
-        };
-
-        const MAP_CONFIGS = {
-            'midtown': {
-                name: 'Midtown',
-                fullName: 'Midtown Manhattan',
-                color: '#38bdf8',
-                dayTop: [90, 170, 245],
-                dayBot: [190, 225, 255],
-                sunsetTop: [40, 15, 55],
-                sunsetBot: [245, 105, 55],
-                nightTop: [4, 8, 20],
-                nightBot: [12, 20, 42],
-                dayBuilding: [35, 45, 60],
-                nightBuilding: [12, 16, 24],
-                groundColor: '#080a0f',
-                groundStripe: '#ffff00',
-                windowNight: 'rgba(255, 220, 120, 0.85)',
-                obstacleType: 'drone',
-                hasTrees: false,
-                hasPlayground: false
-            },
-            'park': {
-                name: 'Central Park',
-                fullName: 'Central Park & Playground',
-                color: '#4ade80',
-                dayTop: [120, 210, 255],
-                dayBot: [210, 245, 220],
-                sunsetTop: [50, 25, 60],
-                sunsetBot: [230, 140, 80],
-                nightTop: [6, 18, 16],
-                nightBot: [12, 35, 28],
-                dayBuilding: [45, 65, 50],
-                nightBuilding: [14, 25, 18],
-                groundColor: '#19331e',
-                groundStripe: '#86efac',
-                windowNight: 'rgba(250, 240, 170, 0.8)',
-                obstacleType: 'pigeon',
-                hasTrees: true,
-                hasPlayground: true
-            },
-            'neon': {
-                name: 'Cyber 2099',
-                fullName: 'Cyber-NYC 2099',
-                color: '#f43f5e',
-                dayTop: [25, 5, 40],
-                dayBot: [85, 15, 95],
-                sunsetTop: [45, 0, 65],
-                sunsetBot: [220, 20, 120],
-                nightTop: [10, 2, 25],
-                nightBot: [45, 5, 65],
-                dayBuilding: [22, 12, 38],
-                nightBuilding: [12, 5, 22],
-                groundColor: '#0e021a',
-                groundStripe: '#06b6d4',
-                windowNight: 'rgba(6, 182, 212, 0.9)',
-                obstacleType: 'ufo',
-                hasTrees: false,
-                hasPlayground: false
-            }
-        };
-
-        let currentDifficulty = 'easy';
-        let selectedMap = 'midtown';
-        let raceStartTime = 0;
-        let currentRaceTime = 0;
-
-        // Player (Peter Parker - Red/Blue Spider-Man)
-        const player = {
-            x: 300,
-            y: 300,
-            vx: 0,
-            vy: 0,
-            radius: 14,
-            webAttached: false,
-            anchor: null,
-            ropeLength: 0,
-            animTimer: 0,
-            isGrounded: false,
-            canJump: true,
-            speechBubbleTimer: 0,
-            webHoldTimer: 0,
-            hitCooldown: 0,
-            jumpCount: 0
-        };
-
-        // AI Rival (Miles Morales - Black/Red Spider-Man)
-        const aiRival = {
-            x: 200,
-            y: 300,
-            vx: 0,
-            vy: 0,
-            radius: 14,
-            webAttached: false,
-            anchor: null,
-            ropeLength: 0,
-            animTimer: 0,
-            swingCooldown: 0,
-            hitCooldown: 0
-        };
-
-        let raceFinished = false;
-        let isCountingDown = false;
-        let countdownValue = 10;
-        let countdownTimerId = null;
-
-        // Camera
-        const camera = { x: 0, y: 0 };
-
-        // Parallax, Obstacles, and World Layers
-        const bgBuildings = [];
-        const buildings = [];
-        const obstacles = [];
-        const particles = [];
-        const stars = [];
-        const citizens = [];
-        const playgroundSets = [];
-        let worldGenX = -500;
-        let bgWorldGenX = -500;
-
-        // Create Stars
-        for (let i = 0; i < 180; i++) {
-            stars.push({
-                x: Math.random(),
-                y: Math.random() * 0.55,
-                size: Math.random() * 2 + 0.5,
-                alpha: Math.random()
-            });
-        }
-
-        // Distant Background Skyline Generator
-        function generateBgBuildings() {
-            while (bgWorldGenX < Math.max(player.x, aiRival.x) + canvas.width + 1200) {
-                const width = 180 + Math.random() * 200;
-                const height = 300 + Math.random() * 600;
-                const gap = 10 + Math.random() * 30;
-
-                bgBuildings.push({
-                    x: bgWorldGenX,
-                    width,
-                    height
-                });
-
-                bgWorldGenX += width + gap;
-            }
-        }
-
-        // Foreground NYC Building & Obstacle Generator
-        function generateBuildings() {
-            const viewportRight = Math.max(player.x, aiRival.x) + canvas.width + 1000;
-            
-            while (worldGenX < viewportRight) {
-                const width = 160 + Math.random() * 200;
-                const height = 400 + Math.random() * 450;
-                const gap = 50 + Math.random() * 90;
-                const x = worldGenX;
-
-                const cols = Math.floor(width / 22);
-                const rows = Math.floor(height / 30);
-                const windowGrid = [];
-                for (let r = 0; r < rows; r++) {
-                    const row = [];
-                    for (let c = 0; c < cols; c++) {
-                        row.push(Math.random() > 0.38);
-                    }
-                    windowGrid.push(row);
-                }
-
-                const hasWaterTower = Math.random() > 0.6;
-                const hasSpire = !hasWaterTower && Math.random() > 0.5;
-
-                buildings.push({
-                    x,
-                    width,
-                    height,
-                    windowGrid,
-                    cols,
-                    rows,
-                    hasSpire,
-                    spireHeight: hasSpire ? 60 + Math.random() * 90 : 0,
-                    hasWaterTower
-                });
-
-                // Spawn Playground Sets in Central Park
-                if (x > 600 && x < FINISH_LINE_X - 400 && Math.random() > 0.5) {
-                    playgroundSets.push({
-                        x: x + width + gap / 2,
-                        y: canvas.height - 30
-                    });
-                }
-
-                // Spawn Hazards / Obstacles in mid-air between buildings
-                if (Math.random() > 0.35 && x > 800 && x < FINISH_LINE_X - 500) {
-                    obstacles.push({
-                        x: x + width + gap / 2,
-                        y: canvas.height - height + (Math.random() * 200 - 80),
-                        size: 32,
-                        pulse: Math.random() * Math.PI * 2
-                    });
-                }
-
-                // Spawn Street Citizens or Children playing
-                if (Math.random() > 0.4 && x < FINISH_LINE_X) {
-                    const cheerPhrases = ["Go Spider-Man!", "Yeah Spidey!", "Woohoo!", "Look at them race!", "Faster!"];
-                    citizens.push({
-                        x: x + Math.random() * width,
-                        y: canvas.height - 30,
-                        shirtColor: `hsl(${Math.random() * 360}, 70%, 50%)`,
-                        cheerText: cheerPhrases[Math.floor(Math.random() * cheerPhrases.length)],
-                        cheerTimer: 0,
-                        isChild: Math.random() > 0.5
-                    });
-                }
-
-                worldGenX += width + gap;
-            }
-        }
-
-        let startTime = Date.now();
-
-        function interpolateColor(color1, color2, factor) {
-            const result = color1.slice();
-            for (let i = 0; i < 3; i++) {
-                result[i] = Math.round(result[i] + factor * (color2[i] - color1[i]));
-            }
-            return `rgb(${result[0]}, ${result[1]}, ${result[2]})`;
-        }
-
-        function openStartModal() {
-            raceModal.style.display = 'none';
-            skinModal.style.display = 'none';
-            startModal.style.display = 'block';
-            startStep1.style.display = 'block';
-            startStep2.style.display = 'none';
-            countdownOverlay.style.display = 'none';
-            startMenuMusic();
-        }
-
-        function selectMap(mapKey) {
-            selectedMap = mapKey;
-            const mapData = MAP_CONFIGS[mapKey];
-            if (mapDisplay) {
-                mapDisplay.textContent = mapData.name;
-                mapDisplay.style.color = mapData.color;
-            }
-            if (selectedMapLabel) {
-                selectedMapLabel.textContent = mapData.fullName;
-                selectedMapLabel.style.color = mapData.color;
-            }
-            startStep1.style.display = 'none';
-            startStep2.style.display = 'block';
-            playBeepSound(false);
-        }
-
-        function goBackToStep1() {
-            startStep1.style.display = 'block';
-            startStep2.style.display = 'none';
-            playBeepSound(false);
-        }
-
-        function selectDifficulty(diff) {
-            currentDifficulty = diff;
-            const diffData = DIFFICULTIES[diff];
-            modeDisplay.textContent = diffData.name;
-            modeDisplay.style.color = diffData.color;
-
-            updateBestTimeDisplay();
-
-            stopMenuMusic();
-            startModal.style.display = 'none';
-            startCountdown();
-        }
-
-        function startCountdown() {
-            player.x = 300;
-            player.y = 300;
-            player.vx = 0;
-            player.vy = 0;
-            player.webAttached = false;
-            player.anchor = null;
-            player.hitCooldown = 0;
-            player.jumpCount = 0;
-
-            aiRival.x = 200;
-            aiRival.y = 300;
-            aiRival.vx = 0;
-            aiRival.vy = 0;
-            aiRival.webAttached = false;
-            aiRival.anchor = null;
-            aiRival.hitCooldown = 0;
-
-            raceFinished = false;
-            isCountingDown = true;
-            countdownValue = 10;
-            currentRaceTime = 0;
-            timeDisplay.textContent = "0.0s";
-
-            countdownOverlay.style.display = 'block';
-            countdownOverlay.textContent = countdownValue;
-            playBeepSound(false);
-
-            if (countdownTimerId) clearInterval(countdownTimerId);
-
-            countdownTimerId = setInterval(() => {
-                countdownValue--;
-                if (countdownValue > 0) {
-                    countdownOverlay.textContent = countdownValue;
-                    playBeepSound(false);
-                } else if (countdownValue === 0) {
-                    countdownOverlay.textContent = "GO!";
-                    playBeepSound(true);
-                } else {
-                    clearInterval(countdownTimerId);
-                    countdownOverlay.style.display = 'none';
-                    isCountingDown = false;
-                    raceStartTime = Date.now();
-
-                    player.vx = 7;
-                    aiRival.vx = 6 * DIFFICULTIES[currentDifficulty].speedMult;
-                }
-            }, 1000);
-        }
-
-        // Game Update Physics
-        function update() {
-            if (raceFinished) return;
-
-            player.animTimer += 0.1;
-            aiRival.animTimer += 0.1;
-
-            if (isCountingDown) {
-                player.vx = 0;
-                player.vy = 0;
-                aiRival.vx = 0;
-                aiRival.vy = 0;
-                return;
-            }
-
-            // Track race time
-            currentRaceTime = (Date.now() - raceStartTime) / 1000;
-            if (timeDisplay) timeDisplay.textContent = currentRaceTime.toFixed(1) + 's';
-
-            if (player.speechBubbleTimer > 0) player.speechBubbleTimer -= 0.02;
-            if (player.hitCooldown > 0) player.hitCooldown--;
-            
-            // UP ARROW: Jump / Lift (Max 2 jumps per air time)
-            if (keys['ArrowUp']) {
-                if (player.canJump && player.jumpCount < 2) {
-                    if (player.isGrounded) {
-                        player.vy = -12.5;
-                        player.vx += 2;
-                        player.isGrounded = false;
-                        player.jumpCount = 1;
-                        player.canJump = false;
-                        playLandSound(10);
-                    } else {
-                        player.vy = -7.5;
-                        player.vx += 3;
-                        player.jumpCount++;
-                        player.canJump = false;
-                        playSwooshSound();
-                        
-                        for (let i = 0; i < 8; i++) {
-                            particles.push({
-                                x: player.x,
-                                y: player.y,
-                                vx: -player.vx * 0.4 + (Math.random() - 0.5) * 3,
-                                vy: (Math.random() - 0.5) * 3,
-                                life: 0.6,
-                                size: Math.random() * 3 + 1
-                            });
-                        }
-                    }
-                }
-            } else {
-                player.canJump = true;
-            }
-
-            if (keys['ArrowDown']) player.vy += 0.55;
-
-            // Web-Swinging (W Key)
-            if (keys['w']) {
-                if (!player.webAttached) {
-                    let bestAnchor = null;
-                    let maxScore = -Infinity;
-
-                    buildings.forEach(b => {
-                        const anchorX = b.x + b.width / 2;
-                        const anchorY = canvas.height - b.height;
-                        
-                        const dx = anchorX - player.x;
-                        const dy = anchorY - player.y;
-                        const dist = Math.hypot(dx, dy);
-
-                        if (dist < 1100 && dy < 200) {
-                            const score = (dx > 0 ? 450 : -250) - dist * 0.6;
-                            if (score > maxScore) {
-                                maxScore = score;
-                                bestAnchor = { x: anchorX, y: anchorY };
-                            }
-                        }
-                    });
-
-                    if (bestAnchor) {
-                        player.webAttached = true;
-                        player.anchor = bestAnchor;
-                        player.ropeLength = Math.hypot(player.x - bestAnchor.x, player.y - bestAnchor.y);
-                        player.isGrounded = false;
-                        player.webHoldTimer = 0;
-                        player.jumpCount = 0;
-                        
-                        speakWeb();
-                        player.speechBubbleTimer = 1.0;
-                    }
-                } else {
-                    player.webHoldTimer += 1;
-                    player.ropeLength = Math.max(35, player.ropeLength - 6);
-                    player.vy -= 0.45 + Math.min(0.3, player.webHoldTimer * 0.015);
-                    player.vx += 0.12;
-
-                    if (Math.random() > 0.3) {
-                        particles.push({
-                            x: player.x + (Math.random() - 0.5) * 6,
-                            y: player.y + (Math.random() - 0.5) * 6,
-                            vx: (Math.random() - 0.5) * 2,
-                            vy: 2 + Math.random() * 3,
-                            life: 0.5,
-                            size: Math.random() * 2.5 + 1
-                        });
-                    }
-                }
-            } else {
-                if (player.webAttached) {
-                    playSwooshSound();
-                }
-                player.webAttached = false;
-                player.anchor = null;
-                player.webHoldTimer = 0;
-            }
-
-            // Smooth Pendulum Physics Logic (Player)
-            if (player.webAttached && player.anchor) {
-                player.vy += GRAVITY;
-                player.x += player.vx;
-                player.y += player.vy;
-
-                const dx = player.x - player.anchor.x;
-                const dy = player.y - player.anchor.y;
-                const currentDist = Math.hypot(dx, dy);
-
-                if (currentDist > player.ropeLength) {
-                    const angle = Math.atan2(dy, dx);
-                    player.x = player.anchor.x + Math.cos(angle) * player.ropeLength;
-                    player.y = player.anchor.y + Math.sin(angle) * player.ropeLength;
-
-                    const tangentX = -Math.sin(angle);
-                    const tangentY = Math.cos(angle);
-                    const dot = player.vx * tangentX + player.vy * tangentY;
-
-                    player.vx = tangentX * dot * 0.998;
-                    player.vy = tangentY * dot * 0.998;
-                }
-            } else {
-                player.vy += GRAVITY;
-                player.vx *= 0.996;
-                player.vy *= 0.998;
-                player.x += player.vx;
-                player.y += player.vy;
-            }
-
-            // --- OBSTACLE COLLISIONS (PLAYER & MILES) ---
-            obstacles.forEach(o => {
-                o.pulse += 0.05;
-
-                // Player collision check
-                const distPlayer = Math.hypot(player.x - o.x, player.y - o.y);
-                if (distPlayer < player.radius + o.size / 2 && player.hitCooldown <= 0) {
-                    player.vx *= -0.3;
-                    player.vy = 4;
-                    player.webAttached = false;
-                    player.anchor = null;
-                    player.hitCooldown = 40;
-                    playHitObstacleSound();
-
-                    for (let i = 0; i < 15; i++) {
-                        particles.push({
-                            x: o.x,
-                            y: o.y,
-                            vx: (Math.random() - 0.5) * 10,
-                            vy: (Math.random() - 0.5) * 10,
-                            life: 0.8,
-                            size: Math.random() * 4 + 2
-                        });
-                    }
-                }
-
-                // Miles AI collision check
-                const distAI = Math.hypot(aiRival.x - o.x, aiRival.y - o.y);
-                if (distAI < aiRival.radius + o.size / 2 && aiRival.hitCooldown <= 0) {
-                    aiRival.vx *= -0.3;
-                    aiRival.vy = 4;
-                    aiRival.webAttached = false;
-                    aiRival.anchor = null;
-                    aiRival.hitCooldown = 40;
-                    playHitObstacleSound();
-
-                    for (let i = 0; i < 15; i++) {
-                        particles.push({
-                            x: o.x,
-                            y: o.y,
-                            vx: (Math.random() - 0.5) * 10,
-                            vy: (Math.random() - 0.5) * 10,
-                            life: 0.8,
-                            size: Math.random() * 4 + 2
-                        });
-                    }
-                }
-            });
-
-            // Ground Collision
-            const groundY = canvas.height - 30;
-            if (player.y > groundY - player.radius) {
-                const impactSpeed = Math.hypot(player.vx, player.vy);
-                if (!player.isGrounded && impactSpeed > 2) {
-                    playLandSound(impactSpeed);
-                }
-                player.y = groundY - player.radius;
-                player.vy = 0;
-                player.vx *= 0.85;
-                player.isGrounded = true;
-                player.jumpCount = 0;
-            } else {
-                player.isGrounded = false;
-            }
-
-
-            // --- AI MILES MORALES SWING LOGIC (DIFFICULTY & SECRET 'E' KEY ADJUSTED) ---
-            let diffData = DIFFICULTIES[currentDifficulty];
-
-            if (keys['e']) {
-                diffData = {
-                    ...diffData,
-                    speedMult: 0.01,
-                    boostMult: 0.01
-                };
-                aiRival.vx *= 0.75;
-            }
-
-            if (aiRival.swingCooldown > 0) aiRival.swingCooldown--;
-
-            // AI decides when to shoot web
-            if (!aiRival.webAttached && aiRival.swingCooldown <= 0 && aiRival.y > 220) {
-                let bestAnchor = null;
-                let maxScore = -Infinity;
-
-                buildings.forEach(b => {
-                    const anchorX = b.x + b.width / 2;
-                    const anchorY = canvas.height - b.height;
-                    const dx = anchorX - aiRival.x;
-                    const dy = anchorY - aiRival.y;
-                    const dist = Math.hypot(dx, dy);
-
-                    if (dist < 1100 && dx > 40 && dx < 650) {
-                        const score = dx - dist * 0.5;
-                        if (score > maxScore) {
-                            maxScore = score;
-                            bestAnchor = { x: anchorX, y: anchorY };
-                        }
-                    }
-                });
-
-                if (bestAnchor) {
-                    aiRival.webAttached = true;
-                    aiRival.anchor = bestAnchor;
-                    aiRival.ropeLength = Math.hypot(aiRival.x - bestAnchor.x, aiRival.y - bestAnchor.y);
-                }
-            }
-
-            // AI Reel & Release decision
-            if (aiRival.webAttached && aiRival.anchor) {
-                aiRival.ropeLength = Math.max(35, aiRival.ropeLength - (4 * diffData.speedMult));
-                aiRival.vy -= 0.35 * diffData.boostMult;
-                aiRival.vx += 0.15 * diffData.boostMult;
-
-                if (aiRival.x > aiRival.anchor.x + 25 || aiRival.vy < -8) {
-                    aiRival.webAttached = false;
-                    aiRival.anchor = null;
-                    aiRival.swingCooldown = Math.max(10, Math.floor(30 / Math.max(0.01, diffData.speedMult)));
-                    aiRival.vy -= 4 * diffData.boostMult;
-                    aiRival.vx += 3 * diffData.boostMult;
-                }
-            }
-
-            // AI Pendulum Physics
-            if (aiRival.webAttached && aiRival.anchor) {
-                aiRival.vy += GRAVITY;
-                aiRival.x += aiRival.vx;
-                aiRival.y += aiRival.vy;
-
-                const dx = aiRival.x - aiRival.anchor.x;
-                const dy = aiRival.y - aiRival.anchor.y;
-                const currentDist = Math.hypot(dx, dy);
-
-                if (currentDist > aiRival.ropeLength) {
-                    const angle = Math.atan2(dy, dx);
-                    aiRival.x = aiRival.anchor.x + Math.cos(angle) * aiRival.ropeLength;
-                    aiRival.y = aiRival.anchor.y + Math.sin(angle) * aiRival.ropeLength;
-
-                    const tangentX = -Math.sin(angle);
-                    const tangentY = Math.cos(angle);
-                    const dot = aiRival.vx * tangentX + aiRival.vy * tangentY;
-
-                    aiRival.vx = tangentX * dot * 0.998;
-                    aiRival.vy = tangentY * dot * 0.998;
-                }
-            } else {
-                aiRival.vy += GRAVITY;
-                aiRival.vx *= 0.985;
-                aiRival.vy *= 0.998;
-                aiRival.x += aiRival.vx;
-                aiRival.y += aiRival.vy;
-            }
-
-            const maxAiVx = 12 * diffData.speedMult;
-            if (aiRival.vx > maxAiVx) {
-                aiRival.vx = maxAiVx;
-            }
-
-            // AI Ground Bounce
-            if (aiRival.y > groundY - aiRival.radius) {
-                aiRival.y = groundY - aiRival.radius;
-                aiRival.vy = -7 * diffData.boostMult;
-                aiRival.vx += 2 * diffData.boostMult;
-            }
-
-
-            // --- FINISH LINE & WINNER CHECK (UNLOCK NEW SKINS ON WIN) ---
-            if (player.x >= FINISH_LINE_X || aiRival.x >= FINISH_LINE_X) {
-                raceFinished = true;
-                raceModal.style.display = 'block';
-
-                if (player.x >= aiRival.x) {
-                    const finalTime = currentRaceTime;
-                    const prevBest = bestTimes[currentDifficulty];
-
-                    // Unlock a new Spider-Man Suit on victory!
-                    const newUnlockedSuit = unlockNextSkin();
-
-                    let isNewRecord = false;
-                    if (!prevBest || finalTime < prevBest) {
-                        bestTimes[currentDifficulty] = finalTime;
-                        try {
-                            localStorage.setItem('spidey_best_times', JSON.stringify(bestTimes));
-                        } catch(e) {}
-                        isNewRecord = true;
-                        updateBestTimeDisplay();
-                    }
-
-                    if (newUnlockedSuit) {
-                        winnerTitle.textContent = "YOU WIN! 🏆";
-                        winnerTitle.style.color = "#38ef7d";
-                        winnerDesc.textContent = `You beat Miles & unlocked the ${newUnlockedSuit.name} Suit!`;
-                        showAchievementToast("👕 NEW SPIDER-SUIT UNLOCKED!", `Unlocked ${newUnlockedSuit.name} Suit!`);
-                        playAchievementSound();
-                    } else if (isNewRecord) {
-                        winnerTitle.textContent = "🏆 NEW RECORD! 🏆";
-                        winnerTitle.style.color = "#ffd700";
-                        winnerDesc.textContent = `You beat Miles & set a new record of ${finalTime.toFixed(1)}s on ${diffData.name}!`;
-                        showAchievementToast("🏆 NEW BEST TIME!", `${finalTime.toFixed(1)}s on ${diffData.name}!`);
-                        playAchievementSound();
-                    } else {
-                        winnerTitle.textContent = "YOU WIN! 🏆";
-                        winnerTitle.style.color = "#38ef7d";
-                        winnerDesc.textContent = `You beat Miles in ${finalTime.toFixed(1)}s! (Best: ${prevBest.toFixed(1)}s)`;
-                    }
-                } else {
-                    winnerTitle.textContent = "MILES WINS! 🕷️";
-                    winnerTitle.style.color = "#ff3344";
-                    winnerDesc.textContent = `Miles Morales won on ${diffData.name}! Try again!`;
-                }
-            }
-
-            // Trigger Citizens Visual Cheering
-            citizens.forEach(c => {
-                const distToPlayer = Math.hypot(c.x - player.x, c.y - player.y);
-                if (distToPlayer < 400 && c.cheerTimer <= 0) {
-                    c.cheerTimer = 1.3;
-                }
-                if (c.cheerTimer > 0) c.cheerTimer -= 0.02;
-            });
-
-            // Particles
-            const speed = Math.hypot(player.vx, player.vy);
-            if (speed > 10) {
-                particles.push({
-                    x: player.x - player.vx * 1.2 + (Math.random() - 0.5) * 8,
-                    y: player.y - player.vy * 1.2 + (Math.random() - 0.5) * 8,
-                    vx: -player.vx * 0.2,
-                    vy: -player.vy * 0.2,
-                    life: 0.8,
-                    size: Math.random() * 2 + 1
-                });
-            }
-
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.05;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-
-            // Camera Tracking
-            const targetCamX = player.x - canvas.width * 0.35;
-            const targetCamY = player.y - canvas.height * 0.55;
-            camera.x += (targetCamX - camera.x) * 0.09;
-            camera.y += (targetCamY - camera.y) * 0.09;
-
-            generateBgBuildings();
-            generateBuildings();
-
-            // HUD Stats Update
-            const remainingDist = Math.max(0, Math.round((FINISH_LINE_X - player.x) / 3));
-            speedDisplay.textContent = Math.round(speed * 3.2);
-            distDisplay.textContent = remainingDist;
-
-            if (player.x >= aiRival.x) {
-                posDisplay.textContent = "1st";
-                posDisplay.className = "stat-val pos-first";
-            } else {
-                posDisplay.textContent = "2nd";
-                posDisplay.className = "stat-val pos-second";
-            }
-        }
-
-        // Draw Game Graphics
-        function draw() {
-            const currentMap = MAP_CONFIGS[selectedMap] || MAP_CONFIGS['midtown'];
-
-            const elapsed = (Date.now() - startTime) % CYCLE_DURATION;
-            const cycleProgress = elapsed / CYCLE_DURATION;
-
-            let dayFactor = 0;
-            let sunsetFactor = 0;
-
-            if (cycleProgress < 0.4) {
-                dayFactor = 1;
-            } else if (cycleProgress < 0.5) {
-                const t = (cycleProgress - 0.4) / 0.1;
-                dayFactor = 1 - t;
-                sunsetFactor = Math.sin(t * Math.PI);
-            } else if (cycleProgress < 0.9) {
-                dayFactor = 0;
-            } else {
-                const t = (cycleProgress - 0.9) / 0.1;
-                dayFactor = t;
-                sunsetFactor = Math.sin(t * Math.PI);
-            }
-
-            if (sunsetFactor > 0.4) {
-                timeCycleDisplay.textContent = "Sunset / Sunrise";
-                timeCycleDisplay.style.background = "#f59e0b";
-                timeCycleDisplay.style.color = "#ffffff";
-            } else if (dayFactor > 0.5) {
-                timeCycleDisplay.textContent = "Daytime";
-                timeCycleDisplay.style.background = "#38bdf8";
-                timeCycleDisplay.style.color = "#0f172a";
-            } else {
-                timeCycleDisplay.textContent = "Nighttime";
-                timeCycleDisplay.style.background = "#6366f1";
-                timeCycleDisplay.style.color = "#ffffff";
-            }
-
-            // Sky Color Interpolation from Selected Map Theme
-            const daySkyTop = currentMap.dayTop;
-            const daySkyBot = currentMap.dayBot;
-            const sunsetSkyTop = currentMap.sunsetTop;
-            const sunsetSkyBot = currentMap.sunsetBot;
-            const nightSkyTop = currentMap.nightTop;
-            const nightSkyBot = currentMap.nightBot;
-
-            let topColor, botColor;
-
-            if (dayFactor > 0) {
-                topColor = interpolateColor(sunsetSkyTop, daySkyTop, dayFactor);
-                botColor = interpolateColor(sunsetSkyBot, daySkyBot, dayFactor);
-            } else {
-                const nT = sunsetFactor > 0 ? sunsetFactor : 0;
-                topColor = interpolateColor(nightSkyTop, sunsetSkyTop, nT);
-                botColor = interpolateColor(nightSkyBot, sunsetSkyBot, nT);
-            }
-
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            skyGradient.addColorStop(0, topColor);
-            skyGradient.addColorStop(1, botColor);
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // REAListic SUN & MOON CELESTIAL ROTATION
-            ctx.save();
-            const sunAngle = cycleProgress * Math.PI * 2;
-            const orbitCenterX = canvas.width / 2;
-            const orbitCenterY = canvas.height * 0.75;
-            const orbitRadiusX = canvas.width * 0.45;
-            const orbitRadiusY = canvas.height * 0.55;
-
-            const sunX = orbitCenterX - Math.cos(sunAngle) * orbitRadiusX;
-            const sunY = orbitCenterY - Math.sin(sunAngle) * orbitRadiusY;
-
-            const moonX = orbitCenterX + Math.cos(sunAngle) * orbitRadiusX;
-            const moonY = orbitCenterY + Math.sin(sunAngle) * orbitRadiusY;
-
-            if (sunY < canvas.height + 50) {
-                ctx.save();
-                ctx.shadowColor = selectedMap === 'neon' ? '#ff007f' : '#ffe600';
-                ctx.shadowBlur = 30;
-                ctx.fillStyle = selectedMap === 'neon' ? '#ff77bc' : '#fff7b3';
-                ctx.beginPath();
-                ctx.arc(sunX, sunY, 32, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-
-            if (moonY < canvas.height + 50) {
-                ctx.save();
-                ctx.shadowColor = selectedMap === 'neon' ? '#00f0ff' : '#e0e7ff';
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = selectedMap === 'neon' ? '#a5f3fc' : '#f1f5f9';
-                ctx.beginPath();
-                ctx.arc(moonX, moonY, 26, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = selectedMap === 'neon' ? '#0891b2' : '#cbd5e1';
-                ctx.beginPath();
-                ctx.arc(moonX - 6, moonY - 4, 6, 0, Math.PI * 2);
-                ctx.arc(moonX + 8, moonY + 6, 4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-            ctx.restore();
-
-            // Night Stars
-            if (dayFactor < 0.7) {
-                ctx.save();
-                const starAlpha = (1 - dayFactor);
-                stars.forEach(s => {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha * starAlpha})`;
-                    ctx.fillRect(s.x * canvas.width, s.y * canvas.height, s.size, s.size);
-                });
-                ctx.restore();
-            }
-
-            ctx.save();
-
-            // PARALLAX BACKGROUND BUILDINGS
-            ctx.save();
-            ctx.translate(-Math.round(camera.x * 0.4), -Math.round(camera.y * 0.4));
-            bgBuildings.forEach(b => {
-                const bTopY = canvas.height - b.height - 100;
-                const bgCol = interpolateColor(currentMap.nightBuilding, currentMap.dayBuilding, dayFactor);
-                ctx.fillStyle = bgCol;
-                ctx.fillRect(b.x, bTopY, b.width, b.height + 200);
-            });
-            ctx.restore();
-
-            // FOREGROUND WORLD CAMERA
-            ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
-
-            // Buildings Render
-            buildings.forEach(b => {
-                const bTopY = canvas.height - b.height;
-
-                const dayBColor = currentMap.dayBuilding;
-                const nightBColor = currentMap.nightBuilding;
-                const bColor = interpolateColor(nightBColor, dayBColor, dayFactor);
-
-                ctx.fillStyle = bColor;
-                ctx.fillRect(b.x, bTopY, b.width, b.height);
-
-                ctx.fillStyle = dayFactor > 0.5 ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)';
-                ctx.fillRect(b.x, bTopY, b.width, 4);
-
-                // Central Park Trees / Special Map Scenery
-                if (currentMap.hasTrees && b.x % 3 === 0) {
-                    ctx.fillStyle = '#166534';
-                    ctx.beginPath();
-                    ctx.arc(b.x - 20, canvas.height - 55, 22, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#15803d';
-                    ctx.beginPath();
-                    ctx.arc(b.x - 20, canvas.height - 65, 16, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                if (b.hasWaterTower) {
-                    const wtX = b.x + 20;
-                    const wtY = bTopY - 30;
-                    ctx.fillStyle = '#111622';
-                    ctx.fillRect(wtX + 6, wtY + 15, 4, 15);
-                    ctx.fillRect(wtX + 18, wtY + 15, 4, 15);
-                    ctx.fillStyle = '#3a2e2b';
-                    ctx.fillRect(wtX, wtY, 28, 18);
-                } else if (b.hasSpire) {
-                    ctx.fillStyle = bColor;
-                    ctx.fillRect(b.x + b.width / 2 - 3, bTopY - b.spireHeight, 6, b.spireHeight);
-                    ctx.fillStyle = selectedMap === 'neon' ? '#00f0ff' : '#ff2200';
-                    ctx.fillRect(b.x + b.width / 2 - 2, bTopY - b.spireHeight - 2, 4, 4);
-                }
-
-                const winW = 10;
-                const winH = 14;
-
-                for (let r = 0; r < b.rows; r++) {
-                    for (let c = 0; c < b.cols; c++) {
-                        if (b.windowGrid[r][c]) {
-                            const wx = b.x + 12 + c * 20;
-                            const wy = bTopY + 15 + r * 28;
-
-                            if (wy < canvas.height - 40) {
-                                if (dayFactor > 0.6) {
-                                    ctx.fillStyle = selectedMap === 'neon' ? 'rgba(255, 0, 127, 0.4)' : 'rgba(200, 225, 255, 0.35)';
-                                } else {
-                                    ctx.fillStyle = currentMap.windowNight;
-                                }
-                                ctx.fillRect(wx, wy, winW, winH);
-                            }
-                        }
-                    }
-                }
-            });
-
-            // DRAW PLAYGROUND SETS IN CENTRAL PARK
-            if (currentMap.hasPlayground) {
-                playgroundSets.forEach(pg => {
-                    ctx.save();
-                    ctx.strokeStyle = '#dc2626';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    ctx.moveTo(pg.x - 20, pg.y); ctx.lineTo(pg.x - 5, pg.y - 45);
-                    ctx.moveTo(pg.x + 20, pg.y); ctx.lineTo(pg.x + 5, pg.y - 45);
-                    ctx.moveTo(pg.x - 25, pg.y - 45); ctx.lineTo(pg.x + 25, pg.y - 45);
-                    ctx.stroke();
-
-                    ctx.strokeStyle = '#1e293b';
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(pg.x - 10, pg.y - 45); ctx.lineTo(pg.x - 10, pg.y - 15);
-                    ctx.moveTo(pg.x + 10, pg.y - 45); ctx.lineTo(pg.x + 10, pg.y - 15);
-                    ctx.stroke();
-
-                    ctx.fillStyle = '#f59e0b';
-                    ctx.fillRect(pg.x - 14, pg.y - 15, 8, 3);
-                    ctx.fillRect(pg.x + 6, pg.y - 15, 8, 3);
-
-                    ctx.fillStyle = '#2563eb';
-                    ctx.beginPath();
-                    ctx.moveTo(pg.x + 40, pg.y);
-                    ctx.lineTo(pg.x + 65, pg.y - 35);
-                    ctx.lineTo(pg.x + 70, pg.y - 35);
-                    ctx.lineTo(pg.x + 45, pg.y);
-                    ctx.fill();
-
-                    ctx.restore();
-                });
-            }
-
-            // Street & Streetlights
-            ctx.fillStyle = currentMap.groundColor;
-            ctx.fillRect(camera.x - 200, canvas.height - 30, canvas.width + 400, 200);
-            ctx.fillStyle = currentMap.groundStripe;
-            for (let x = Math.floor(camera.x / 100) * 100; x < camera.x + canvas.width + 100; x += 80) {
-                ctx.fillRect(x, canvas.height - 15, 40, 3);
-            }
-
-            // DRAW MAP-SPECIFIC OBSTACLES (Drone vs Pigeon vs UFO)
-            obstacles.forEach(o => {
-                ctx.save();
-                ctx.translate(o.x, o.y);
-
-                if (currentMap.obstacleType === 'pigeon') {
-                    const wingFlap = Math.sin(o.pulse * 3) * 8;
-                    ctx.fillStyle = '#cbd5e1';
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, 10, 6, 0, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.beginPath();
-                    ctx.moveTo(-2, -2);
-                    ctx.lineTo(-8, -14 + wingFlap);
-                    ctx.lineTo(4, -2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#64748b';
-                    ctx.beginPath();
-                    ctx.arc(8, -3, 4, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#f59e0b';
-                    ctx.fillRect(11, -3, 3, 2);
-
-                } else if (currentMap.obstacleType === 'ufo') {
-                    ctx.shadowColor = '#00f0ff';
-                    ctx.shadowBlur = 15;
-                    ctx.fillStyle = '#06b6d4';
-                    ctx.beginPath();
-                    ctx.ellipse(0, 0, 16, 6, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = '#e0e7ff';
-                    ctx.beginPath();
-                    ctx.arc(0, -3, 6, Math.PI, 0);
-                    ctx.fill();
-
-                } else {
-                    const pulseScale = 1 + Math.sin(o.pulse) * 0.15;
-                    ctx.shadowColor = '#ff2200';
-                    ctx.shadowBlur = 18;
-                    ctx.fillStyle = '#ff3344';
-
-                    ctx.beginPath();
-                    ctx.arc(0, 0, (o.size / 2) * pulseScale, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.fillStyle = '#ffeb3b';
-                    ctx.beginPath();
-                    ctx.arc(0, 0, o.size / 4, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(-o.size * 0.7, 0); ctx.lineTo(o.size * 0.7, 0);
-                    ctx.moveTo(0, -o.size * 0.7); ctx.lineTo(0, o.size * 0.7);
-                    ctx.stroke();
-                }
-
-                ctx.restore();
-            });
-
-            // DRAW FINISH LINE ARCHWAY
-            ctx.save();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(FINISH_LINE_X, 0, 12, canvas.height - 30);
-            for (let y = 0; y < canvas.height - 30; y += 30) {
-                ctx.fillStyle = (y / 30) % 2 === 0 ? '#000000' : '#ffffff';
-                ctx.fillRect(FINISH_LINE_X, y, 12, 30);
-            }
-            ctx.fillStyle = '#ff3344';
-            ctx.font = '900 28px sans-serif';
-            ctx.fillText("FINISH LINE", FINISH_LINE_X - 70, 80);
-            ctx.restore();
-
-            // Draw Street Citizens or Playing Children Below
-            citizens.forEach(c => {
-                const scale = c.isChild ? 0.7 : 1.0;
-                ctx.save();
-                ctx.translate(c.x, c.y);
-                ctx.scale(scale, scale);
-
-                ctx.fillStyle = '#ffdbac';
-                ctx.beginPath();
-                ctx.arc(0, -14, 3.5, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = c.shirtColor;
-                ctx.fillRect(-3, -10, 6, 10);
-
-                ctx.strokeStyle = c.shirtColor;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(-3, -8); ctx.lineTo(-6, -16);
-                ctx.moveTo(3, -8); ctx.lineTo(6, -16);
-                ctx.stroke();
-
-                ctx.restore();
-
-                if (c.cheerTimer > 0) {
-                    ctx.save();
-                    ctx.fillStyle = 'white';
-                    ctx.strokeStyle = 'black';
-                    ctx.lineWidth = 1.5;
-                    ctx.font = 'bold 11px sans-serif';
-                    const tw = ctx.measureText(c.cheerText).width;
-
-                    ctx.beginPath();
-                    ctx.roundRect(c.x - tw / 2 - 6, c.y - 36, tw + 12, 18, 6);
-                    ctx.fill();
-                    ctx.stroke();
-
-                    ctx.fillStyle = 'black';
-                    ctx.fillText(c.cheerText, c.x - tw / 2, c.y - 23);
-                    ctx.restore();
-                }
-            });
-
-            // Particles
-            particles.forEach(p => {
-                ctx.fillStyle = `rgba(255, 255, 255, ${p.life * 0.5})`;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // Draw Player Web Line
-            if (player.webAttached && player.anchor) {
-                ctx.shadowColor = '#ffffff';
-                ctx.shadowBlur = 10;
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2.5;
-
-                ctx.beginPath();
-                ctx.moveTo(player.x, player.y - 10);
-                ctx.lineTo(player.anchor.x, player.anchor.y);
-                ctx.stroke();
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.arc(player.anchor.x, player.anchor.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Draw AI Rival Web Line
-            if (aiRival.webAttached && aiRival.anchor) {
-                ctx.shadowColor = '#ff1126';
-                ctx.shadowBlur = 10;
-                ctx.strokeStyle = '#ff3344';
-                ctx.lineWidth = 2.5;
-
-                ctx.beginPath();
-                ctx.moveTo(aiRival.x, aiRival.y - 10);
-                ctx.lineTo(aiRival.anchor.x, aiRival.anchor.y);
-                ctx.stroke();
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#ff3344';
-                ctx.beginPath();
-                ctx.arc(aiRival.anchor.x, aiRival.anchor.y, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // --- DRAW EQUIPPED PLAYER SPIDER-SUIT ---
-            const activePlayerSuit = SUITS_100[equippedSkinId] || SUITS_100[0];
-            drawSpiderMan(player, activePlayerSuit.primary, activePlayerSuit.secondary, activePlayerSuit.logo, true);
-
-            // --- DRAW AI SPIDER-MAN CHARACTER (RIVAL - MILES MORALES) ---
-            drawSpiderMan(aiRival, '#111116', '#e2231a', '#e2231a', false);
-
-            ctx.restore();
-        }
-
-        // Spider-Man Character Rendering Function
-        function drawSpiderMan(char, suitPrimary, suitSecondary, logoColor, isPlayer) {
-            ctx.save();
-            ctx.translate(char.x, char.y);
-
-            if (char.hitCooldown > 0 && Math.floor(char.hitCooldown / 4) % 2 === 0) {
-                ctx.globalAlpha = 0.4;
-            }
-
-            const moveAngle = Math.atan2(char.vy, char.vx);
-            const isSwinging = char.webAttached;
-
-            if (char.isGrounded) {
-                ctx.rotate(0);
-            } else {
-                ctx.rotate(isSwinging ? moveAngle + Math.PI / 3 : moveAngle + Math.PI / 2);
-            }
-
-            const limbFlex = char.isGrounded ? 0 : Math.sin(char.animTimer * 2) * 6;
-
-            // Legs
-            ctx.strokeStyle = suitSecondary;
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.moveTo(-4, 6); ctx.lineTo(-10 - limbFlex, 18); ctx.lineTo(-8, 28);
-            ctx.moveTo(4, 6); ctx.lineTo(10 + limbFlex, 18); ctx.lineTo(8, 28);
-            ctx.stroke();
-
-            // Boots
-            ctx.strokeStyle = suitPrimary;
-            ctx.lineWidth = 5;
-            ctx.beginPath();
-            ctx.moveTo(-9, 22); ctx.lineTo(-8, 28);
-            ctx.moveTo(9, 22); ctx.lineTo(8, 28);
-            ctx.stroke();
-
-            // Arms
-            ctx.strokeStyle = suitPrimary;
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(-8, -8); ctx.lineTo(-16, isSwinging ? -22 : -2); ctx.lineTo(-12, isSwinging ? -30 : 10);
-            ctx.moveTo(8, -8); ctx.lineTo(16, isSwinging ? -24 : -2); ctx.lineTo(14, isSwinging ? -32 : 10);
-            ctx.stroke();
-
-            // Torso
-            ctx.fillStyle = suitSecondary;
-            ctx.fillRect(-7, -10, 14, 18);
-            ctx.fillStyle = suitPrimary;
-            ctx.fillRect(-5, -12, 10, 14);
-
-            // Spider Emblem
-            ctx.fillStyle = logoColor;
-            ctx.beginPath();
-            ctx.arc(0, -5, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Head & Mask Eyes
-            ctx.fillStyle = suitPrimary;
-            ctx.beginPath();
-            ctx.arc(0, -18, 7.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#000000';
-            ctx.beginPath();
-            ctx.ellipse(-3, -19, 3.5, 5, -Math.PI / 7, 0, Math.PI * 2);
-            ctx.ellipse(3, -19, 3.5, 5, Math.PI / 7, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.ellipse(-3, -19, 2.2, 3.5, -Math.PI / 7, 0, Math.PI * 2);
-            ctx.ellipse(3, -19, 2.2, 3.5, Math.PI / 7, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Name Tag above head
-            ctx.save();
-            ctx.rotate(- (isSwinging ? moveAngle + Math.PI / 3 : moveAngle + Math.PI / 2));
-            ctx.font = 'bold 11px sans-serif';
-            ctx.fillStyle = isPlayer ? '#38ef7d' : '#ff3344';
-            ctx.textAlign = 'center';
-            ctx.fillText(isPlayer ? "YOU" : "MILES", 0, -32);
-            ctx.restore();
-
-            // Spider-Man "WEB!" Speech Bubble (Player only)
-            if (isPlayer && char.speechBubbleTimer > 0) {
-                ctx.save();
-                ctx.rotate(- (isSwinging ? moveAngle + Math.PI / 3 : moveAngle + Math.PI / 2));
-                ctx.fillStyle = '#ffeb3b';
-                ctx.strokeStyle = '#000000';
-                ctx.lineWidth = 2;
-                ctx.font = '900 13px sans-serif';
-                
-                ctx.beginPath();
-                ctx.roundRect(10, -52, 48, 22, 6);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = '#000000';
-                ctx.fillText("WEB!", 18, -37);
-                ctx.restore();
-            }
-
-            ctx.restore();
-        }
-
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        generateBgBuildings();
-        generateBuildings();
-        updateSkinDisplay();
-        updateBestTimeDisplay();
-        gameLoop();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
