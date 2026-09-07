@@ -3,7 +3,7 @@
 A fast-paced HTML5 physics-based web-swinging game where you race against Miles Morales through the skyscraper alleys of New York City! Built entirely with HTML5 Canvas and JavaScript.
 
 ## 🚀 Live Demo
-**[👉 Click Here to Play Spider-Man Race Live!](https://YOUR-GITHUB-USERNAME.github.io/spidermanrace/)**
+**[👉 Click Here to Play Spider-Man Race Live!](https://lukeatmycreations.github.io/spidermanrace/)**
 
 *(Note: Replace `YOUR-GITHUB-USERNAME` in the repository settings with your actual GitHub username to activate this link!)*
 
